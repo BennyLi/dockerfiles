@@ -22,4 +22,5 @@ To launch the Atom text editor run
 * Add an option to rebuild the image on a Dockerfile change
 * Add an option to recreate the container of image changes
 * Seperate multiple apps on different Dockerfiles
+* Add volumes
 * <your-todo-here>

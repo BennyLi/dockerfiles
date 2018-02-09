@@ -11,13 +11,23 @@ RUN apt-get update && \
       wget \
       libxss1 libasound2 libxkbfile1
 
-
 # Install Atom Text Editor
 RUN wget --output-document=/tmp/atom.deb https://github.com/atom/atom/releases/download/v${ATOM_VERSION}/atom-amd64.deb && \
     apt install --yes /tmp/atom.deb
+
+
+
+
 
 # Cleanup Image
 RUN apt-get autoremove && \
     apt-get clean && \
     apt-get autoclean
 
+
+
+
+
+# User Management to not run as root
+RUN useradd --create-home dev
+USER dev
