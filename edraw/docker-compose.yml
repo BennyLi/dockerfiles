@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+
+  edraw:
+    build: .
+    image: edraw
+    tty: true
+    stdin_open: true
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /home/bln/Documents/:/home/edraw/Documents:rw
+
