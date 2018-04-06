@@ -5,4 +5,6 @@ LABEL maintainer="Benny Li <dev@benny-li.de>"
 RUN apt-get update && apt-get upgrade --yes
 
 # Install lynx browser
-RUN apt-get install --yes lynx-cur
+RUN apt-get update && apt-get install --yes lynx
+
+ENTRYPOINT ["lynx"]

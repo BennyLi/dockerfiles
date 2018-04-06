@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+
+  lynx:
+    build: .
+    image: bennyli/lynx
+    tty: true
+    stdin_open: true
