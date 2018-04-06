@@ -5,6 +5,14 @@ LABEL maintainer="Benny Li <dev@benny-li.de>"
 ARG ATOM_VERSION=1.23.3
 
 
+
+
+# User Management to not run as root
+RUN useradd --create-home dev
+
+
+
+
 # Install dependencies
 RUN apt-get update && \
     apt-get install --yes \
@@ -16,10 +24,15 @@ RUN wget --output-document=/tmp/atom.deb https://github.com/atom/atom/releases/d
     apt install --yes /tmp/atom.deb
 
 
+# Install Atom packages (... as the user)
+USER dev
+RUN apm install language-docker
+
 
 
 
 # Cleanup Image
+USER root
 RUN apt-get autoremove && \
     apt-get clean && \
     apt-get autoclean
@@ -27,7 +40,4 @@ RUN apt-get autoremove && \
 
 
 
-
-# User Management to not run as root
-RUN useradd --create-home dev
 USER dev
