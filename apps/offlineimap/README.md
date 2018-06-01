@@ -49,4 +49,4 @@ docker service create --name offlineimap \
 
 Everybody should use SSL encrypted IMAP servers. For this to work it could be necessary that the SSL certificates of your server have been added to the hosts certificate store. My entrypoint script does handle this for you. It parses your OfflineIMAP config file, requests the SSL certificate from your server and passes it to the CA certificate store of the container OfflineIMAP is running in.
 
-For more details take a look a my [GitHub repo](https://github.com/BennyLi/docker-apps/apps/offlineimap).
+For more details take a look a my [GitHub repo](https://github.com/BennyLi/docker-apps/blob/master/apps/offlineimap/entrypoint.sh).
