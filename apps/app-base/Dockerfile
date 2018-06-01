@@ -3,8 +3,8 @@ LABEL maintainer="Benny Li <dev@benny-li.de>"
 
 
 #####  Add a non-root app user  #####
-ARG APP_USER="dev"
-ARG APP_USER_GROUP="dev"
+ARG APP_USER="userless"
+ARG APP_USER_GROUP="groupless"
 ENV APP_USER="$APP_USER"
 ENV APP_USER_GROUP="$APP_USER_GROUP"
 
