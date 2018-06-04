@@ -31,7 +31,7 @@ If you don't know how to setup an OfflineIMAP configuration file, please [read t
 In all cases I don't like to mount my host filesystem into my containers. You shouldn't either, yust because. Use Docker Volumes instead. So let's create one for OfflineIMAP to store the mailboxes in:
 
 ```sh
-docker create volume offlineimap_mailboxes
+docker volume create offlineimap_mailboxes
 ```
 
 ### Finally fire it up
@@ -40,7 +40,7 @@ All should be setup now. Finally run the OfflineIMAP container / Swarm service w
 
 ```sh
 docker service create --name offlineimap \
-        --volume offlineimap_mailboxes:/home/userless/.mail \
+        --mount type=volume,source=offlineimap_mailboxes,destination=/home/userless/.mail \
         --secret source=offlineimaprc,target=/home/userless/.offlineimaprc \
         bennyli/offlineimap
 ```
