@@ -3,6 +3,7 @@
 > OfflineIMAP is a GPLv2 software to dispose your mailbox(es) as a local Maildir(s).
 >
 > For example, this allows reading the mails while offline without the need for your mail reader (MUA) to support disconnected operations.
+Source: [offlineimap.org](http://www.offlineimap.org/)
 
 This is my personal container to run OfflineIMAP wherever I want.
 
@@ -63,3 +64,23 @@ docker service logs -f offlineimap
 Everybody should use SSL encrypted IMAP servers. For this to work it could be necessary that the SSL certificates of your server have been added to the hosts certificate store. My entrypoint script does handle this for you. It parses your OfflineIMAP config file, requests the SSL certificate from your server and passes it to the CA certificate store of the container OfflineIMAP is running in.
 
 For more details take a look a my [GitHub repo](https://github.com/BennyLi/docker-apps/blob/master/apps/offlineimap/entrypoint.sh).
+
+### Extend the restart delay
+
+If you use this container in swarm mode (like I described above), the container will automatically restart after one sync with a delay of 5 seconds. This is a sensible default from Docker itself [see the docs](https://docs.docker.com/engine/reference/commandline/service_create/#options). As always, you can change these settings by altering the `docker service create` command. Here is an example to run OfflineIMAP again and again with a delay of 10 minutes.
+
+```sh
+docker service create --name offlineimap \
+        --mount type=volume,source=offlineimap_mailboxes,destination=/home/userless/.mail \
+        --secret source=offlineimaprc,target=/home/userless/.offlineimaprc \
+        --restart-condition any \
+        --restart-delay 10m \
+        bennyli/offlineimap
+```
+
+## Contribute
+
+The files for this image are hosted [GitHub](https://github.com/BennyLi/docker-apps/blob/master/apps/offlineimap/).
+If you find a bug or like to give a hint for enhancements issue a ticket on [GitHub](https://github.com/BennyLi/docker-apps/issues).
+
+Nothing fits your needs? You just want to give me some love and support what I'm doing? [PayPal Me](https://paypal.me/BennyLi)
