@@ -14,6 +14,7 @@ This approach is based on Docker Secrets. For this to work you have to enable Do
 docker swarm init
 ```
 
+
 Checkout [Swarm Mode - Create a swarm](https://docs.docker.com/engine/swarm/swarm-mode/#create-a-swarm) for more informations.
 
 ### Handling secrets
@@ -23,6 +24,7 @@ My prefered way of handling credentials is to use Docker secrets. For OfflineIMA
 ```sh
 docker secret create offlineimaprc /path/to/your/.offlineimaprc
 ```
+
 
 If you don't know how to setup an OfflineIMAP configuration file, please [read the docs](http://www.offlineimap.org/doc/conf_examples.html).
 
@@ -34,6 +36,7 @@ In all cases I don't like to mount my host filesystem into my containers. You sh
 docker volume create offlineimap_mailboxes
 ```
 
+
 ### Finally fire it up
 
 All should be setup now. Finally run the OfflineIMAP container / Swarm service with (but double check the volume path with your configured `localfolders` config in your OfflineIMAP configuration file.
@@ -44,6 +47,16 @@ docker service create --name offlineimap \
         --secret source=offlineimaprc,target=/home/userless/.offlineimaprc \
         bennyli/offlineimap
 ```
+
+
+#### Log output
+
+To see what's going on run
+
+```sh
+docker service logs -f offlineimap
+```
+
 
 ## Advanced informations
 
