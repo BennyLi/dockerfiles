@@ -1,0 +1,53 @@
+# Generated Dockerfile! Do not edit!
+# Source /home/bln/dev/private/docker-apps/apps/Joplin/Dockerfile.Terminal_tpl
+FROM node:9
+#LABEL "maintainer=Benny Li <dev@benny-li.de>"
+
+ARG APP_USER="dev"
+ENV APP_USER="$APP_USER"
+
+RUN useradd --create-home $APP_USER
+
+#####  Install NeoVim  #####
+
+# TODO: Can this be done by a Multistage Dockerfile?
+
+
+USER root
+
+ARG BUILD_DEPS="ninja-build libtool libtool-bin autoconf automake cmake g++ pkg-config unzip texinfo"
+RUN apt-get update && apt-get install --yes $BUILD_DEPS
+
+WORKDIR /opt
+RUN git clone https://github.com/neovim/neovim.git
+WORKDIR /opt/neovim
+RUN make && make install
+
+#RUN apt-get remove --yes $BUILD_DEPS && apt-get clean
+
+ENV EDITOR "nvim"
+USER $APP_USER
+
+
+#####  Install Joplin notes taking terminal app  #####
+
+USER $APP_USER
+RUN NPM_CONFIG_PREFIX=~/.joplin-bin npm install -g joplin
+
+USER root
+RUN ln -s /home/$APP_USER/.joplin-bin/bin/joplin /usr/bin/joplin
+
+# Ensure mount point permissions
+RUN mkdir -p /home/$APP_USER/.config/joplin &&     chown -R $APP_USER /home/$APP_USER/.config/joplin
+
+EXPOSE 9167
+
+#COPY entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+#ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/joplin"]
+
+
+
+
+USER $APP_USER

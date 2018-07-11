@@ -1,0 +1,35 @@
+version: '3'
+
+volumes:
+  joplin-data:
+
+
+services:
+
+  joplin-desktop:
+    build:
+      context: .
+      dockerfile: Dockerfile.Desktop
+    image: bennyli/joplin-desktop
+    tty: true
+    stdin_open: true
+    environment:
+      DISPLAY: ":0"
+    devices:
+      - "/dev/dri:/dev/dri"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+
+  joplin-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile.Terminal
+    image: bennyli/joplin-terminal
+    ports:
+      - 9167:9167
+    volumes:
+      - joplin-data:/home/dev/.config/joplin:rw
+        # TODO: User access rights to the volume
+    tty: true
+    stdin_open: true
+

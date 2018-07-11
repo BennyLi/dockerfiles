@@ -1,0 +1,26 @@
+version: '3'
+
+volumes:
+  offlineimap_mailboxes:
+    name: offlineimap_mailboxes
+
+secrets:
+  offlineimapconf:
+    external: true
+
+services:
+  offlineimap:
+    image: bennyli/offlineimap
+    secrets:
+      - source: offlineimapconf
+        target: /home/dev/.offlineimaprc
+    volumes:
+      - offlineimap_mailboxes:/home/dev/.mail
+
+  neomutt:
+    image: bennyli/neomutt
+    tty: true
+    stdin_open: true
+    volumes:
+      - maildir:/home/dev/.mail
+

@@ -1,0 +1,47 @@
+# Generated Dockerfile! Do not edit!
+# Source /home/bln/dev/private/docker-apps/apps/Joplin/Dockerfile.Desktop_tpl
+FROM debian as joplin-builder
+
+#LABEL "maintainer=Benny Li <dev@benny-li.de>"
+
+
+
+RUN apt-get update &&       apt-get install --yes curl apt-transport-https git build-essential libgconf-2-4
+
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && 			echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && 			apt-get update && 			apt-get install --yes yarn
+
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && 			apt-get install --yes nodejs
+
+
+RUN mkdir --parent /opt/joplin
+WORKDIR /opt/joplin
+
+# Get the source
+RUN git clone https://github.com/laurent22/joplin.git ./
+
+# Install build dependencies
+RUN cd Tools && 			npm install
+
+# Build the Electron App
+RUN cd ElectronClient/app && 			rsync --delete -a ../../ReactNativeClient/lib/ lib/ && 			npm install && 			yarn dist
+
+
+
+#####  RUNTIME IMAGE  #####
+FROM debian
+
+ARG APP_USER="dev"
+ENV APP_USER="$APP_USER"
+
+RUN useradd --create-home $APP_USER
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install --yes libgtk2.0-0 libx11-xcb-dev libxtst6 libxss1 libgconf-2-4 libnss3 libasound2 libnotify4
+
+RUN mkdir --parent /opt/joplin
+WORKDIR /opt/joplin
+COPY --from=joplin-builder /opt/joplin/ElectronClient/app/dist/linux-unpacked/ ./
+
+#CMD ["/opt/joplin/joplin"]
+
+USER $APP_USER

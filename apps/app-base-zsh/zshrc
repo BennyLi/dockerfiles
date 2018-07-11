@@ -1,0 +1,18 @@
+# Path to your oh-my-zsh installation.
+export ZSH=/home/dev/.oh-my-zsh
+
+# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+ZSH_THEME="robbyrussell"
+
+COMPLETION_WAITING_DOTS="true"
+
+
+#####  PLUGINS  #####
+plugins=(
+  git
+)
+
+source $ZSH/oh-my-zsh.sh
+
+#####  User configuration  #####
+# TODO
