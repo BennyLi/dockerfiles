@@ -1,4 +1,6 @@
-cd edraw
+#! /usr/bin/env sh
+
+#cd edraw
 docker-compose up --no-start --build edraw
 if [ $? != 0 ]; then
   exit 1

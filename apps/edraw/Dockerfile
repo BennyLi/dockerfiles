@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 LABEL maintainer="Benny Li <dev@benny-li.de>"
 
 RUN apt-get update && \
