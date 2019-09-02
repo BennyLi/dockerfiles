@@ -11,7 +11,7 @@ For easy start checkout the [start.sh](https://github.com/BennyLi/docker-apps/bl
 
 ## Contribute
 
-The files for this image are hosted [GitHub](https://github.com/BennyLi/docker-apps/blob/master/apps/offlineimap/).
+The files for this image are hosted [GitHub](https://github.com/BennyLi/docker-apps/blob/master/apps/synology-drive/).
 If you find a bug or like to give a hint for enhancements issue a ticket on [GitHub](https://github.com/BennyLi/docker-apps/issues).
 
 Nothing fits your needs? You just want to give me some love and support what I'm doing? [PayPal Me](https://paypal.me/BennyLi)
