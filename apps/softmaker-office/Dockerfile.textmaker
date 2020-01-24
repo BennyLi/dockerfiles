@@ -1,0 +1,3 @@
+FROM bennyli/softmaker-freeoffice:2018
+
+ENTRYPOINT ['/usr/bin/textmaker18free']
