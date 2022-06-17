@@ -1,0 +1,73 @@
+---
+
+version: '3.3'
+
+#
+# Networks
+#
+networks:
+  firefly-net:
+    name:     firefly-net
+    internal: true
+  proxy-net:
+    name:     {{ traefik_proxy_network_name }}
+    external: true
+
+
+#
+# Services
+#
+services:
+  app:
+    image: fireflyiii/core:latest
+    container_name: firefly
+    depends_on:
+      - db
+    env_file: app.env
+    networks:
+      - proxy-net
+      - firefly-net
+    restart: unless-stopped
+    volumes:
+      - firefly_upload_volume:/var/www/html/storage/upload
+
+  db:
+    image: mariadb
+    container_name: {{ firefly_db_hostname }}
+    env_file: db.env
+    hostname: {{ firefly_db_hostname }}
+    networks:
+      - firefly-net
+    restart: unless-stopped
+    volumes:
+      - firefly_dbdata_volume:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    container_name: {{ firefly_redis_hostname }}
+    hostname: {{ firefly_redis_hostname }}
+    networks:
+      - firefly-net
+
+  cron:
+    image: alpine
+    command: sh -c "echo \"0 3 * * * wget -qO- http://firefly/api/v1/cron/{{ firefly_cron_token }}\" | crontab - && crond -f -L /dev/stdout"
+    networks:
+      - firefly-net
+
+#
+# Volumes
+#
+volumes:
+  firefly_upload_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '{{ firefly_mount_upload_path }}'
+  firefly_dbdata_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '{{ firefly_mount_dbdata_path }}'
