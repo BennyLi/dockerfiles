@@ -1,0 +1,58 @@
+---
+
+version: '3'
+
+#
+# Networks
+#
+networks:
+  homelab-net:
+    name:     '{{ homelab_macvlan_name }}'
+    driver:   macvlan
+    driver_opts:
+      parent: '{{ base_network_device_name }}'
+    ipam:
+      config:
+        - subnet: '{{ homelab_network_subnet }}'
+  proxy-net:
+    name:     '{{ traefik_proxy_network_name }}'
+    external: true
+
+
+#
+# Services
+#
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '8053:80'
+    env_file: app.env
+    networks:
+      homelab-net:
+        ipv4_address: '{{ pihole_macvlan_ip }}'
+    volumes:
+      - pihole_config_volume:/etc/pihole
+      - pihole_dnsmasq_volume:/etc/dnsmasq.d
+    restart: unless-stopped
+
+
+#
+# Volumes
+#
+volumes:
+  pihole_config_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '{{ pihole_mount_config_path }}'
+  pihole_dnsmasq_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '{{ pihole_mount_dnsmasq_path }}'
