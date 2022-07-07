@@ -1,0 +1,52 @@
+---
+
+version: '3'
+
+#
+# Networks
+#
+networks:
+  proxy:
+    name: '{{ traefik_proxy_network_name }}'
+    driver: bridge
+    ipam:
+      config:
+        - subnet:  '{{ traefik_proxy_network_subnet }}'
+          gateway: '{{ traefik_proxy_network_gateway_ip }}'
+  lan:
+    name: '{{ homelab_macvlan_name }}'
+    driver: macvlan
+    driver_opts:
+      parent: '{{ base_network_device_name }}'
+    ipam:
+      config:
+        - subnet: '{{ homelab_network_subnet }}'
+
+
+#
+# Services
+#
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      lan:
+        ipv4_address: '{{ traefik_macvlan_ip }}'
+      proxy:
+        ipv4_address: '{{ traefik_proxy_network_proxy_ip }}'
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - '{{ traefik_mount_config_path }}/acme.json:/acme.json'
+      - '{{ traefik_mount_config_path }}/dynamic_conf:/dynamic_conf'
+      - '{{ traefik_mount_config_path }}/traefik.htpasswd:/traefik.htpasswd:ro'
+      - '{{ traefik_mount_config_path }}/traefik.yml:/traefik.yml:ro'
+    labels:
+      traefik.enable: 'true'
