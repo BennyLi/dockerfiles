@@ -1,0 +1,42 @@
+version: '3'
+
+networks:
+  gotify-net:
+    name:     gotify-net
+    internal: true
+  proxy-net:
+    name:     {{ traefik_proxy_network_name }}
+    external: true
+
+services:
+  app:
+    container_name: gotify
+    hostname: gotify
+    image: gotify/server:latest
+    env_file:
+      - db.env
+    networks:
+      - proxy-net
+      - gotify-net
+    restart: unless-stopped
+    volumes:
+      - '{{ gotify_mount_data_path }}:/app/data'
+      - '{{ gotify_mount_etc_config_path }}:/etc/gotify'
+
+  db:
+    container_name: {{ gotify_db_hostname }}
+    hostname: {{ gotify_db_hostname }}
+    image: mariadb
+    env_file:
+      - db.env
+    healthcheck:
+      test: /usr/local/bin/healthcheck.sh --defaults-file=/etc/mysql/db-healthcheck.conf --connect
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    networks:
+      - gotify-net
+    restart: unless-stopped
+    volumes:
+      - '{{ gotify_mount_db_path }}:/var/lib/mysql'
+      - './db-healthcheck.conf:/etc/mysql/db-healthcheck.conf'
