@@ -1,0 +1,79 @@
+---
+
+version: '3'
+
+networks:
+  nextcloud-net:
+    name: nextcloud-net
+    internal: true
+  proxy-net:
+    name: {{ traefik_proxy_network_name }}
+    external: true
+
+services:
+  db:
+    image: mariadb:{{ nextcloud_mariadb_version }}
+    container_name: nextcloud_db
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb_read_only_compressed=OFF
+    env_file:
+      - db.env
+    healthcheck:
+      test: /usr/local/bin/healthcheck.sh --defaults-file=/etc/mysql/db-healthcheck.conf --connect
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    networks:
+      - nextcloud-net
+    restart: on-failure
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro # not available on Synology
+      - {{ nextclound_mount_dbdata_path }}:/var/lib/mysql
+      - {{ nextcloud_project_path }}/db-healthcheck.conf:/etc/mysql/db-healthcheck.conf'
+
+  redis:
+    image: redis:alpine
+    container_name: nextcloud_redis
+    restart: on-failure
+    networks:
+      - nextcloud-net
+
+  app:
+    image: nextcloud:{{ nextcloud_version }}-apache
+    container_name: nextcloud
+    restart: on-failure
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - app.env
+    healthcheck:
+      start_period: 2m
+      test:
+        - CMD-SHELL
+        - >-
+          curl
+          --fail
+          --user "{{ nextcloud_admin_username }}:{{ nextcloud_admin_password }}"
+          http://localhost/ocs/v2.php/apps/serverinfo/api/v1/info
+          || exit 1
+    networks:
+      - nextcloud-net  # does not have internet access
+      - proxy-net      # has internet access
+    volumes:
+      - {{ nextcloud_mount_apps_path }}:/var/www/html
+      - {{ nextcloud_mount_data_path }}:/var/www/html/data
+
+  cron:
+    image: nextcloud:{{ nextcloud_version }}-apache
+    container_name: nextcloud_cron
+    restart: on-failure
+    depends_on:
+      - db
+      - redis
+    entrypoint: /cron.sh
+    networks:
+      - nextcloud-net # does not have internet access
+    volumes:
+      - {{ nextcloud_mount_apps_path }}:/var/www/html
+      - {{ nextcloud_mount_data_path }}:/var/www/html/data
