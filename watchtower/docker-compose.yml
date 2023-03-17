@@ -1,0 +1,20 @@
+---
+
+version: '3'
+
+networks:
+  proxy-net:
+    name:     {{ traefik_proxy_network_name }}
+    external: true
+
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    env_file:
+      - watchtower.env
+    networks:
+      - proxy-net
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
