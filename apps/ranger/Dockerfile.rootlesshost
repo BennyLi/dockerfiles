@@ -1,0 +1,45 @@
+FROM alpine:3.14
+
+# see: https://github.com/opencontainers/image-spec/blob/main/annotations.md
+LABEL org.opencontainers.image.authors "Benny Li <dev@benny-li.de>"
+
+RUN apk add --no-cache python3 py3-pip                && \
+    `# Optional depencies`                            && \
+    `# For general usage`                             && \
+    apk add --no-cache file py3-chardet sudo          && \
+    `# For enhanced file previews`                    && \
+    apk add --no-cache      \
+      libcaca-apps          \
+      w3m                   \
+      imagemagick           \
+      ffmpeg                \
+      `#atool  <== unavailable?!` \
+      unrar unzip p7zip  \
+      poppler-utils         \
+      `#calibre  <== Must be installed manually: https://github.com/lmorel3/calibre-alpine/blob/master/Dockerfile`               \
+      transmission-cli      \
+      mediainfo             \
+      odt2txt               \
+      jq                                              && \
+    #apk add --no-cache fontforge \
+    #  --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
+    #  --allow-untrusted                               && \
+    pip install Pygments                              && \
+                                                         \
+    `# Install ranger`                                && \
+    pip install ranger-fm
+
+
+
+################################################################################
+#
+# RUNTIME SETUP
+#
+################################################################################
+
+RUN mkdir --parent /home/hostfs                      && \
+    mkdir --parent /home/root/.config/ranger
+
+WORKDIR /home/hostfs
+
+ENTRYPOINT [ "/usr/bin/ranger" ]
