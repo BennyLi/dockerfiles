@@ -1,0 +1,57 @@
+---
+version: "3.9"
+
+networks:
+  onlyoffice-net:
+    name: "${ONLYOFFICE_NETWORK_NAME}"
+  proxy-net:
+    name: "${TRAEFIK_PROXY_NETWORK_NAME}"
+    external: true
+
+services:
+  app:
+    image: onlyoffice/documentserver:${ONLYOFFICE_VERSION}
+    container_name: onlyoffice
+    env_file: app/.env
+    healthcheck:
+      test: TODO
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    networks:
+      - onlyoffice-net
+      - proxy-net
+    restart: on-failure
+    stop_grace_period: 60s
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro # not available on Synology
+      - ${ONLYOFFICE_PROJECT_BASE_PATH}/app/mounts/logs:/var/log/onlyoffice
+      - ${ONLYOFFICE_PROJECT_BASE_PATH}/app/mounts/data:/var/www/onlyoffice/Data
+
+  db:
+    image: postgres:${ONLYOFFICE_POSTGRES_VERSION}
+    container_name: onlyoffice_db
+    env_file: app/.env
+    healthcheck:
+      test: TODO
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    networks:
+      - onlyoffice-net
+    restart: on-failure
+    volumes:
+      - ${ONLYOFFICE_PROJECT_BASE_PATH}/db/mounts/data:/var/lib/postgresql/data
+
+  cache:
+    image: redis:${ONLYOFFICE_REDIS_VERSION}
+    container_name: onlyoffice-cache
+    networks:
+      - onlyoffice-net
+
+  message_broker:
+    image: rabbitmq
+    container_name: onlyoffice_message_broker
+    networks:
+      - onlyoffice-net
